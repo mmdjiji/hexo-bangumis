@@ -1,0 +1,12 @@
+name: New Feature
+description: 新功能请求
+labels: new feature
+title: "[New Feature]: "
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: 功能描述
+      description: Description of new feature.
+    validations:
+      required: true
