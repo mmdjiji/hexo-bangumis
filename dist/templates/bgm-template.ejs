@@ -1,0 +1,36 @@
+<div class="bangumi-item">
+    <div class="bangumi-picture">
+        <img src="<%= lazyload ? (loading || "https://cdn.jsdelivr.net/npm/hexo-bilibili-bangumi@1.2.0/lib/img/loading.gif") : `https://lain.bgm.tv/pic/cover/c/${item.image}` %>" <%- lazyload ? ` data-src="https://lain.bgm.tv/pic/cover/c/${item.image}"` : '' %> referrerPolicy="no-referrer" width="110" style="width:110px;margin:20px auto;" />
+    </div>
+    <div class="bangumi-info">
+        <div class="bangumi-title">
+            <a target="_blank" href="https://bangumi.tv/subject/<%= item.id %>"><%= item.name_cn || item.name || 'Unknown' %></a>
+        </div>
+        <div class="bangumi-meta">
+            <span class="bangumi-info-items" <%- color_meta  %>>
+                <span class="bangumi-info-item" <%- color_meta  %>>
+                <% if(item.eps){ %>
+                <span class="bangumi-info-total">共<%= item.eps %>话</span><em
+                        class="bangumi-info-label-em">0</em>
+                </span>
+                <% } %>
+                <span class="bangumi-info-item bangumi-type">
+                    <span class="bangumi-info-label">类型</span> <em><%= item.type %></em>
+                </span>
+                <span class="bangumi-info-item bangumi-wish">
+                    <span class="bangumi-info-label">想看</span> <em><%= item.collection.wish || '-' %></em>
+                </span>
+                <span class="bangumi-info-item bangumi-doing">
+                    <span class="bangumi-info-label">在看</span> <em><%= item.collection.doing || '-' %></em>
+                </span>
+                <span class="bangumi-info-item bangumi-collect">
+                    <span class="bangumi-info-label">已看</span> <em><%= item.collection.collect || '-' %></em>
+                </span>
+                <span class="bangumi-info-item bangumi-info-item-score">
+                    <span class="bangumi-info-label">评分</span> <em><%= item.rating.score || '-' %></em>
+                </span>
+            </span>
+        </div>
+        <div class="bangumi-comments" <%- color %>><p>简介：<%= item.summary || "暂无简介" %></p> </div>
+    </div>
+</div>
