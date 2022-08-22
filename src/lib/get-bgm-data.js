@@ -65,7 +65,7 @@ const getBangumi = async (bgm, cachePath) => {
   if (await fs.exists(savedPath)) {
     try {
       const read = await JSON.parse(await fs.readFile(savedPath));
-      if(read.id === bangumi_id) {
+      if (read.id === bangumi_id) {
         return read;
       }
       throw new Error(`Id not match when trying to load id=${bangumi_id}`);
@@ -163,15 +163,25 @@ const getBangumi = async (bgm, cachePath) => {
   log.info(`Get bangumi (${bangumi_id}) Failed, maybe invalid!`);
 };
 
-const getImage = async (image_url) => {
-
+const getImage = (image_url, imagesPath) => {
+  if (image_url && !fs.existsSync(`${imagesPath}/${image_url}`)) {
+    fetch(`https://lain.bgm.tv/pic/cover/c/${image_url}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/octet-stream' }
+    }).then((res) => res.buffer())
+      .then((image) => {
+        fs.writeFile(`${imagesPath}/${image_url}`, image, 'binary', (err) => {
+          console.error(err);
+        });
+      });
+  }
 };
 
 module.exports.getBgmData = async (bgmtv_uid, download_image, source_dir) => {
   // create folders if not exist
   const bangumisPath = path.join(source_dir, '/_data/bangumis');
   const cachePath = path.join(bangumisPath, '/cache');
-  const imagesPath = path.join(bangumisPath, '/images');
+  const imagesPath = path.join(source_dir, '/images');
   const pathList = [bangumisPath, cachePath, imagesPath];
   for (const i of pathList) {
     if (!fs.existsSync(i)) {
@@ -198,6 +208,9 @@ module.exports.getBgmData = async (bgmtv_uid, download_image, source_dir) => {
       const info = await getBangumi(item, cachePath);
       if (info) {
         result.push(info);
+        if (download_image) {
+          getImage(info.image, imagesPath);
+        }
         log.info(`Get bangumi 《${info.name_cn || info.name}》 (${info.id}) Success!`);
       }
     }

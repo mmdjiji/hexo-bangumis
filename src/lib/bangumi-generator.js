@@ -40,6 +40,7 @@ module.exports = async function (locals) {
     color_meta: config.bangumis.color_meta ? `style="color:${config.bangumis.color_meta}"` : '',
     color: config.bangumis.color ? `style="color:${config.bangumis.color}"` : '',
     lazyload: config.bangumis.lazyload ?? true,
+    download_image: config.bangumis.download_image ?? false,
     wantWatch,
     watched,
     watching,
