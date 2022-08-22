@@ -50,7 +50,7 @@ const getBangumiList = async (bgmtv_uid) => {
         }
       }
       offset += LIMIT;
-    } while (offset * LIMIT < total);
+    } while (offset < total);
     log.info(`Get bangumi list successfully, found ${total} bangumis`);
   }
 
@@ -64,9 +64,14 @@ const getBangumi = async (bgm, cachePath) => {
   const savedPath = path.join(cachePath, `/${bangumi_id}.json`);
   if (await fs.exists(savedPath)) {
     try {
-      return (await JSON.parse(await fs.readFile(savedPath)));
+      const read = await JSON.parse(await fs.readFile(savedPath));
+      if(read.id === bangumi_id) {
+        return read;
+      }
+      throw new Error(`Id not match when trying to load id=${bangumi_id}`);
     } catch (error) {
       // invalid bangumi
+      console.error(error);
       return undefined;
     }
   }
