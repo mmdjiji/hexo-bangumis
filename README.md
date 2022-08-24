@@ -40,6 +40,7 @@ bangumis:
   bgmtv_uid: mmdjiji        # bgm.tv的uid
   download_image: true      # 下载图片并使用本地图片，否则使用bgm.tv提供的网络图源
   lazyload: true            # 是否开启懒加载
+  margin: 20px              # 封面图的偏移量微调
 ```
 
 ## 使用
