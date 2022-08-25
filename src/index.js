@@ -40,11 +40,11 @@ hexo.extend.console.register('bangumis', 'Generate pages of bangumis for Hexo', 
       log.info('Please add config to _config.yml');
       return;
     }
-    const { enable, bgmtv_uid, download_image } = this.config.bangumis;
+    const { enable, bgmtv_uid, download_image, image_level } = this.config.bangumis;
     if (!enable) {
       return;
     }
-    getBgmData(bgmtv_uid, download_image, this.source_dir);
+    getBgmData(bgmtv_uid, download_image, image_level, this.source_dir);
   } else {
     log.info('Unknown command, please use "hexo bangumis -h" to see the available commands');
   }

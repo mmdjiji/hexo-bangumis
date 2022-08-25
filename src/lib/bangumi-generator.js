@@ -42,6 +42,7 @@ module.exports = async function (locals) {
     lazyload: config.bangumis.lazyload ?? true,
     margin: config.bangumis.margin ?? '20px',
     download_image: config.bangumis.download_image ?? false,
+    image_level: config.bangumis.image_level ?? 'c',
     wantWatch,
     watched,
     watching,

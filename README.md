@@ -39,6 +39,7 @@ bangumis:
   color_summary: "#555"     # 追番项简介的颜色
   bgmtv_uid: mmdjiji        # bgm.tv的uid
   download_image: true      # 下载图片并使用本地图片，否则使用bgm.tv提供的网络图源
+  image_level: c            # 图片高清等级 (l, c, m, s, g)
   lazyload: true            # 是否开启懒加载
   margin: 20px              # 封面图的偏移量微调
 ```

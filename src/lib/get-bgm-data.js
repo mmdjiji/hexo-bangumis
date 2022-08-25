@@ -163,9 +163,9 @@ const getBangumi = async (bgm, cachePath) => {
   log.info(`Get bangumi (${bangumi_id}) Failed, maybe invalid!`);
 };
 
-const getImage = (image_url, imagesPath) => {
+const getImage = (image_url, imagesPath, image_level) => {
   if (image_url && !fs.existsSync(`${imagesPath}/${image_url}`)) {
-    fetch(`https://lain.bgm.tv/pic/cover/c/${image_url}`, {
+    fetch(`https://lain.bgm.tv/pic/cover/${image_level}/${image_url}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/octet-stream' }
     }).then((res) => res.buffer())
@@ -177,7 +177,7 @@ const getImage = (image_url, imagesPath) => {
   }
 };
 
-module.exports.getBgmData = async (bgmtv_uid, download_image, source_dir) => {
+module.exports.getBgmData = async (bgmtv_uid, download_image, image_level, source_dir) => {
   // create folders if not exist
   const bangumisPath = path.join(source_dir, '/_data/bangumis');
   const cachePath = path.join(bangumisPath, '/cache');
@@ -209,7 +209,7 @@ module.exports.getBgmData = async (bgmtv_uid, download_image, source_dir) => {
       if (info) {
         result.push(info);
         if (download_image) {
-          getImage(info.image, imagesPath);
+          getImage(info.image, imagesPath, image_level);
         }
         log.info(`Get bangumi 《${info.name_cn || info.name}》 (${info.id}) Success!`);
       }

@@ -19,19 +19,19 @@
 </div>
 <div>
     <div id="bangumi-item1">
-        <% wantWatch.forEach(function(item){ %>
+        <% wantWatch.forEach(function(item) { %>
         <%- include('bgm-template.ejs', { item, loading, color_meta }) %>
         <% }); %>
         <%- include('pagination.ejs', {__: __}) %>
     </div>
     <div id="bangumi-item2">
-        <% watching.forEach(function(item){ %>
+        <% watching.forEach(function(item) { %>
         <%- include('bgm-template.ejs', { item, loading, color_meta }) %>
         <% }); %>
         <%- include('pagination.ejs', {__: __}) %>
     </div>
     <div id="bangumi-item3">
-        <% watched.forEach(function(item){ %>
+        <% watched.forEach(function(item) { %>
         <%- include('bgm-template.ejs', { item, loading, color_meta }) %>
         <% }); %>
         <%- include('pagination.ejs', {__: __}) %>

@@ -32,6 +32,10 @@ hexo.extend.generator.register('bangumis', function (locals) {
     return;
   }
 
+  if (!fs.existsSync(path.join(this.source_dir, '/images/loading.gif'))) {
+    fs.copyFile(path.join(__dirname, 'img/loading.gif'), path.join(this.source_dir, '/images/loading.gif'));
+  }
+
   return require('./dist/bangumi-generator').call(this, locals);
 });
 hexo.extend.console.register('bangumis', 'Generate pages of bangumis for Hexo', options, function (args) {
@@ -53,13 +57,14 @@ hexo.extend.console.register('bangumis', 'Generate pages of bangumis for Hexo', 
     var _this$config$bangumis2 = this.config.bangumis,
         enable = _this$config$bangumis2.enable,
         bgmtv_uid = _this$config$bangumis2.bgmtv_uid,
-        download_image = _this$config$bangumis2.download_image;
+        download_image = _this$config$bangumis2.download_image,
+        image_level = _this$config$bangumis2.image_level;
 
     if (!enable) {
       return;
     }
 
-    getBgmData(bgmtv_uid, download_image, this.source_dir);
+    getBgmData(bgmtv_uid, download_image, image_level, this.source_dir);
   } else {
     log.info('Unknown command, please use "hexo bangumis -h" to see the available commands');
   }
