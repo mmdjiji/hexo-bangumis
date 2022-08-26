@@ -181,7 +181,7 @@ module.exports.getBgmData = async (bgmtv_uid, download_image, image_level, sourc
   // create folders if not exist
   const bangumisPath = path.join(source_dir, '/_data/bangumis');
   const cachePath = path.join(bangumisPath, '/cache');
-  const imagesPath = path.join(source_dir, '/images');
+  const imagesPath = path.join(source_dir, '/images/bangumis');
   const pathList = [bangumisPath, cachePath, imagesPath];
   for (const i of pathList) {
     if (!fs.existsSync(i)) {

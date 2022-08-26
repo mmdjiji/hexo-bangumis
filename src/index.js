@@ -22,8 +22,8 @@ hexo.extend.generator.register('bangumis', function (locals) {
   if (!this?.config?.bangumis?.enable) {
     return;
   }
-  if (!fs.existsSync(path.join(this.source_dir, '/images/loading.gif'))) {
-    fs.copyFile(path.join(__dirname, 'img/loading.gif'), path.join(this.source_dir, '/images/loading.gif'));
+  if (!fs.existsSync(path.join(this.source_dir, '/images/bangumis/loading.gif'))) {
+    fs.copyFile(path.join(__dirname, 'img/loading.gif'), path.join(this.source_dir, '/images/bangumis/loading.gif'));
   }
   return require('./dist/bangumi-generator').call(this, locals);
 });
