@@ -66,9 +66,12 @@ const getBangumi = async (bgm, cachePath) => {
     try {
       const read = await JSON.parse(await fs.readFile(savedPath));
       if (read.id === bangumi_id) {
-        return read;
+        if (read?.eps > 0) {
+          return read;
+        }
+      } else {
+        throw new Error(`Id not match when trying to load id = ${bangumi_id}`);
       }
-      throw new Error(`Id not match when trying to load id=${bangumi_id}`);
     } catch (error) {
       // invalid bangumi
       console.error(error);
