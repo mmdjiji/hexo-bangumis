@@ -6,18 +6,6 @@ const log = require('hexo-log')({
   debug: false,
   silent: false
 });
-// const bangumiData = require('bangumi-data');
-
-const BGMTV_TYPE = {
-  1: '书籍',
-  2: '动画',
-  3: '音乐',
-  4: '游戏',
-  6: '三次元'
-};
-
-// const jp2cnName = (name) => bangumiData.items.find((item) => item.title === name)?.titleTranslate?.['zh-Hans']?.[0] || name;
-
 const LIMIT = 100;
 const USER_AGENT = 'mmdjiji/hexo-bangumis (https://github.com/mmdjiji/hexo-bangumis)';
 
@@ -32,7 +20,7 @@ const getBangumiList = async (bgmtv_uid) => {
 
     do {
       // eslint-disable-next-line no-mixed-operators
-      const req = await (await fetch(`https://api.bgm.tv/v0/users/${bgmtv_uid}/collections?limit=${LIMIT}&offset=${offset}`, {
+      const req = await (await fetch(`https://api.bgm.tv/v0/users/${bgmtv_uid}/collections?subject_type=2&limit=${LIMIT}&offset=${offset}`, {
         headers: {
           'User-Agent': USER_AGENT
         }
@@ -78,49 +66,6 @@ const getBangumi = async (bgm, cachePath) => {
       return undefined;
     }
   }
-
-  // !!! special bug if use this code, exit when getting the bangumi information
-  // const cdnList = ['https://cdn.jsdelivr.net/gh/czy0729/Bangumi-Subject@master/data/', 'https://raw.githubusercontent.com/czy0729/Bangumi-Subject/master/data/'];
-  // for (let i = 0; i < cdnList.length; i += 1) {
-  //   const url = `${cdnList[i]}${parseInt(parseInt(bangumi_id, 10) / 100, 10)}/${bangumi_id}.json`;
-  //   try {
-  //     const req = await fetch(url, {
-  //       headers: {
-  //         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36 Edg/97.0.1072.69'
-  //       }
-  //     });
-  //     if (req.status === 200) {
-  //       const item = await req.json();
-  //       const obj =  {
-  //         id: item.id,
-  //         name: item.name,
-  //         name_cn: item.name_cn,
-  //         type: BGMTV_TYPE[item.type],
-  //         image: /\w+\/\w+\/\w+.jpg$/.exec(item.image)[0],
-  //         link: `https://bgm.tv/subject/${item.id}`,
-  //         eps: item.eps.length,
-  //         collection: item.collection,
-  //         date: item.date,
-  //         summary: item.summary?.trim(),
-  //         rating: item.rating,
-  //         updated_at: bgm.updated_at
-  //       };
-  //       fs.writeFile(savedPath, JSON.stringify(obj), (err) => {
-  //         if (err) {
-  //           log.info(`Failed to write data to cache/${bangumi_id}.json`);
-  //           console.error(err);
-  //         }
-  //       });
-  //       return obj;
-  //     }
-  //   } catch (error) {
-  //     // do nothing, cdn failure is normal
-  //     // if (i === cdnList.length - 1) {
-  //     //   log.info(`Failed to get bangumi ${bangumi_id} by cdn`);
-  //     //   console.error(error);
-  //     // }
-  //   }
-  // }
 
   try {
     const req = await fetch(`https://api.bgm.tv/v0/subjects/${bangumi_id}`, {
