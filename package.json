@@ -1,6 +1,6 @@
 {
   "name": "hexo-bangumis",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Hexo 番剧页面插件",
   "main": "index.js",
   "scripts": {
