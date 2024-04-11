@@ -9,6 +9,14 @@ const log = require('hexo-log')({
 const LIMIT = 100;
 const USER_AGENT = 'mmdjiji/hexo-bangumis (https://github.com/mmdjiji/hexo-bangumis)';
 
+const BGMTV_TYPE = {
+  1: '书籍',
+  2: '动画',
+  3: '音乐',
+  4: '游戏',
+  6: '三次元'
+};
+
 // get a user's bangumi list
 const getBangumiList = async (bgmtv_uid) => {
   const wantWatch = []; // type=1
@@ -98,9 +106,9 @@ const getBangumi = async (bgm, cachePath) => {
       return obj;
     }
   } catch (error) {
+    console.log(error);
     log.info(`Failed to get bangumi (${bangumi_id}), please check network!`);
     return undefined;
-    // console.log(error);
   }
   fs.writeFile(savedPath, '{}', (err) => { // mark as invalid bangumi
     if (err) {
