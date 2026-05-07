@@ -2,7 +2,7 @@
 'use strict';
 const fs = require('hexo-fs');
 const path = require('path');
-const log = require('hexo-log')({
+const log = require('hexo-log').default({
   debug: false,
   silent: false
 });

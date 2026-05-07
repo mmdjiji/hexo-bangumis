@@ -27,11 +27,11 @@
   "dependencies": {
     "@babel/runtime": "^7.18.0",
     "bangumi-data": "^0.3.91",
-    "ejs": "3.1.8",
+    "ejs": "^5.0.1",
     "encoding": "^0.1.13",
-    "hexo-fs": "^3.1.0",
+    "hexo-fs": "^5.0.0",
     "hexo-i18n": "^1.0.0",
-    "hexo-log": "^3.0.0",
+    "hexo-log": "^4.0.1",
     "node-fetch": "^2.6.7"
   },
   "repository": {
