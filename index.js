@@ -3,7 +3,7 @@
 
 var fs = require('hexo-fs');
 var path = require('path');
-var log = require('hexo-log')({
+var log = require('hexo-log').default({
   debug: false,
   silent: false
 });

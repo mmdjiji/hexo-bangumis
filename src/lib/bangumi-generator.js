@@ -4,7 +4,7 @@ const ejs = require('ejs');
 const path = require('path');
 const { i18n } = require('./util');
 const fs = require('hexo-fs');
-const log = require('hexo-log')({
+const log = require('hexo-log').default({
   debug: false,
   silent: false
 });

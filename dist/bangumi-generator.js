@@ -11,7 +11,7 @@ var path = require('path');
 var _require = require('./util'),
   i18n = _require.i18n;
 var fs = require('hexo-fs');
-var log = require('hexo-log')({
+var log = require('hexo-log').default({
   debug: false,
   silent: false
 });

@@ -10,7 +10,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 var fs = require('hexo-fs');
 var path = require('path');
 var fetch = require('node-fetch');
-var log = require('hexo-log')({
+var log = require('hexo-log').default({
   debug: false,
   silent: false
 });
