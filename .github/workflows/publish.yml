@@ -23,6 +23,8 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           package-manager-cache: false
 
+      - run: npm install
+
       - name: Set version from tag
         run: npm version "$GITHUB_REF_NAME" --no-git-tag-version
 
