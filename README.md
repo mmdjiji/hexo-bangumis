@@ -89,6 +89,30 @@ $ npm test
 
 > ⚠️ 这些测试会**真实联网**访问镜像站（默认 `https://bgmapi.anibt.net` 与 `https://bgmimg.anibt.net`），因此需要网络环境可达对应镜像。若因断网或镜像下线导致失败，属环境问题而非代码缺陷。
 
+## 发版
+
+发版由 GitHub Actions 工作流 [`.github/workflows/publish.yml`](.github/workflows/publish.yml) 自动完成，**推送形如 `1.2.1` 的 tag**（无 `v` 前缀）即触发。
+
+发版步骤（开发者只需做第 1、2 步）：
+
+1. 在 `main` 分支提交代码改动（**不要手动修改 `package.json` 的 `version`**，交由 CI 处理）:
+   ```bash
+   $ git commit -m "feat: ..."
+   $ git push origin main
+   ```
+2. 打 tag 并推送（tag 名即目标版本号）:
+   ```bash
+   $ git tag 1.2.1
+   $ git push origin 1.2.1
+   ```
+3. 随后 CI 自动完成：
+   * `npm version <tag> --no-git-tag-version` —— 按 tag 设置版本号
+   * `npm publish` —— 发布到 npm
+   * 将版本号变更 `chore: bump version to <tag>` 提交回 `main`
+   * 创建对应的 GitHub Release
+
+> ⚠️ **切勿在打 tag 前手动把 `package.json` 改成目标版本**。CI 的 `npm version <tag>` 在版本未变化时会报 `Version not changed` 并中断发版。版本号始终由 CI 依据 tag 写入。
+
 ## 获取 [bgm.tv](https://bgm.tv) 的 uid
 
 登录 [bgm.tv](https://bgm.tv) 后打开控制台（快捷键 `Ctrl` + `Shift` + `J`），输入 `CHOBITS_UID` 后按回车，得到的数字就是 `uid` 啦~
