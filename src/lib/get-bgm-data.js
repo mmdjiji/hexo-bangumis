@@ -8,6 +8,11 @@ const log = require('hexo-log').default({
 });
 const LIMIT = 100;
 const USER_AGENT = 'mmdjiji/hexo-bangumis (https://github.com/mmdjiji/hexo-bangumis)';
+const PROBE_TIMEOUT = 10000; // ms, reachability probe timeout for each mirror
+
+// default upstreams, used when no mirror list is configured in _config.yml
+const DEFAULT_API_MIRRORS = ['https://api.bgm.tv'];
+const DEFAULT_IMAGE_MIRRORS = ['https://lain.bgm.tv'];
 
 const BGMTV_TYPE = {
   1: '书籍',
@@ -17,8 +22,50 @@ const BGMTV_TYPE = {
   6: '三次元'
 };
 
+// strip trailing slash so we can safely concat paths
+const normalizeBase = (base) => {
+  const trimmed = String(base).trim();
+  return trimmed.replace(/\/+$/, '');
+};
+
+// fetch with an abort-based timeout, so an unreachable mirror doesn't hang forever
+const fetchWithTimeout = async (url, options = {}, timeout = PROBE_TIMEOUT) => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
+// Pick the first reachable mirror from `mirrors`, probing top-to-bottom.
+// `buildProbeUrl(base)` returns the URL used to test a single mirror. A mirror
+// counts as reachable as soon as the host returns ANY HTTP response — a 404 or
+// 403 still proves the host is not blocked/timing out, which is exactly the
+// condition we fall back on (DNS failure, connection refused, timeout). The
+// chosen base is returned (without trailing slash) and should be reused for the
+// rest of the run. Throws when every mirror is unreachable.
+const resolveMirror = async (mirrors, buildProbeUrl, options, label) => {
+  const candidates = (Array.isArray(mirrors) && mirrors.length ? mirrors : [])
+    .map(normalizeBase)
+    .filter(Boolean);
+  let lastError;
+  for (const base of candidates) {
+    try {
+      const res = await fetchWithTimeout(buildProbeUrl(base), options);
+      log.info(`Using ${label} mirror: ${base} (probe status ${res.status})`);
+      return { base, res };
+    } catch (error) {
+      lastError = error;
+      log.info(`${label} mirror ${base} unreachable (${error.message}), trying next...`);
+    }
+  }
+  throw new Error(`All ${label} mirrors are unreachable: ${lastError ? lastError.message : 'no mirror configured'}`);
+};
+
 // get a user's bangumi list
-const getBangumiList = async (bgmtv_uid) => {
+const getBangumiList = async (bgmtv_uid, apiBase) => {
   const wantWatch = []; // type=1
   const watching = [];  // type=3
   const watched = [];   // type=2
@@ -28,7 +75,7 @@ const getBangumiList = async (bgmtv_uid) => {
 
     do {
       // eslint-disable-next-line no-mixed-operators
-      const req = await (await fetch(`https://api.bgm.tv/v0/users/${bgmtv_uid}/collections?subject_type=2&limit=${LIMIT}&offset=${offset}`, {
+      const req = await (await fetchWithTimeout(`${apiBase}/v0/users/${bgmtv_uid}/collections?subject_type=2&limit=${LIMIT}&offset=${offset}`, {
         headers: {
           'User-Agent': USER_AGENT
         }
@@ -54,8 +101,7 @@ const getBangumiList = async (bgmtv_uid) => {
 };
 
 // get a bangumi by id
-// jsdelivr -> raw -> bgmtv
-const getBangumi = async (bgm, cachePath) => {
+const getBangumi = async (bgm, cachePath, apiBase) => {
   const bangumi_id = bgm.subject_id;
   const savedPath = path.join(cachePath, `/${bangumi_id}.json`);
   if (await fs.exists(savedPath)) {
@@ -76,7 +122,7 @@ const getBangumi = async (bgm, cachePath) => {
   }
 
   try {
-    const req = await fetch(`https://api.bgm.tv/v0/subjects/${bangumi_id}`, {
+    const req = await fetchWithTimeout(`${apiBase}/v0/subjects/${bangumi_id}`, {
       headers: {
         'User-Agent': USER_AGENT
       }
@@ -119,9 +165,9 @@ const getBangumi = async (bgm, cachePath) => {
   log.info(`Get bangumi (${bangumi_id}) Failed, maybe invalid!`);
 };
 
-const getImage = (image_url, imagesPath, image_level) => {
+const getImage = (image_url, imagesPath, image_level, imageBase) => {
   if (image_url && !fs.existsSync(`${imagesPath}/${image_url}`)) {
-    fetch(`https://lain.bgm.tv/pic/cover/${image_level}/${image_url}`, {
+    fetch(`${imageBase}/pic/cover/${image_level}/${image_url}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/octet-stream' }
     }).then((res) => res.buffer())
@@ -133,7 +179,10 @@ const getImage = (image_url, imagesPath, image_level) => {
   }
 };
 
-module.exports.getBgmData = async (bgmtv_uid, download_image, image_level, source_dir) => {
+module.exports.getBgmData = async (bgmtv_uid, download_image, image_level, source_dir, mirrors = {}) => {
+  const apiMirrors = mirrors.api_mirrors || DEFAULT_API_MIRRORS;
+  const imageMirrors = mirrors.image_mirrors || DEFAULT_IMAGE_MIRRORS;
+
   // create folders if not exist
   const bangumisPath = path.join(source_dir, '/_data/bangumis');
   const cachePath = path.join(bangumisPath, '/cache');
@@ -145,8 +194,34 @@ module.exports.getBgmData = async (bgmtv_uid, download_image, image_level, sourc
     }
   }
 
+  // resolve a reachable API mirror, probing top-to-bottom; the chosen base is
+  // reused for every subsequent request this run
+  const apiProbeUrl = (base) => {
+    if (bgmtv_uid) {
+      return `${base}/v0/users/${bgmtv_uid}/collections?subject_type=2&limit=1&offset=0`;
+    }
+    return `${base}/v0/subjects/1`;
+  };
+  const { base: apiBase } = await resolveMirror(
+    apiMirrors,
+    apiProbeUrl,
+    { headers: { 'User-Agent': USER_AGENT } },
+    'API'
+  );
+
+  // resolve a reachable image mirror only when local images are requested
+  let imageBase;
+  if (download_image) {
+    imageBase = (await resolveMirror(
+      imageMirrors,
+      (base) => `${base}/pic/cover/${image_level}/`,
+      { method: 'GET' },
+      'image'
+    )).base;
+  }
+
   // get user's bangumi list
-  const bangumiList = bgmtv_uid ? (await getBangumiList(bgmtv_uid)) : (await JSON.parse(fs.readFileSync(path.join(bangumisPath, '/index.json'))));
+  const bangumiList = bgmtv_uid ? (await getBangumiList(bgmtv_uid, apiBase)) : (await JSON.parse(fs.readFileSync(path.join(bangumisPath, '/index.json'))));
 
   if (bgmtv_uid) {
     fs.writeFile(path.join(bangumisPath, '/index.json'), JSON.stringify(bangumiList), (err) => {
@@ -161,11 +236,11 @@ module.exports.getBgmData = async (bgmtv_uid, download_image, image_level, sourc
   const batch = async (list) => {
     const result = [];
     for (const item of list) {
-      const info = await getBangumi(item, cachePath);
+      const info = await getBangumi(item, cachePath, apiBase);
       if (info) {
         result.push(info);
         if (download_image) {
-          getImage(info.image, imagesPath, image_level);
+          getImage(info.image, imagesPath, image_level, imageBase);
         }
         log.info(`Get bangumi 《${info.name_cn || info.name}》 (${info.id}) Success!`);
       }

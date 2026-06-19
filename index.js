@@ -3,7 +3,7 @@
 
 var fs = require('hexo-fs');
 var path = require('path');
-var log = require('hexo-log').default({
+var log = require('hexo-log')["default"]({
   debug: false,
   silent: false
 });
@@ -50,11 +50,16 @@ hexo.extend.console.register('bangumis', 'Generate pages of bangumis for Hexo', 
       enable = _this$config$bangumis.enable,
       bgmtv_uid = _this$config$bangumis.bgmtv_uid,
       download_image = _this$config$bangumis.download_image,
-      image_level = _this$config$bangumis.image_level;
+      image_level = _this$config$bangumis.image_level,
+      api_mirrors = _this$config$bangumis.api_mirrors,
+      image_mirrors = _this$config$bangumis.image_mirrors;
     if (!enable) {
       return;
     }
-    getBgmData(bgmtv_uid, download_image, image_level, this.source_dir);
+    getBgmData(bgmtv_uid, download_image, image_level, this.source_dir, {
+      api_mirrors: api_mirrors,
+      image_mirrors: image_mirrors
+    });
   } else {
     log.info('Unknown command, please use "hexo bangumis -h" to see the available commands');
   }

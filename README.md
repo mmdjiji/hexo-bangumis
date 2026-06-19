@@ -42,7 +42,19 @@ bangumis:
   image_level: c            # 图片高清等级 (l, c, m, s, g)
   lazyload: true            # 是否开启懒加载
   margin: 20px              # 封面图的偏移量微调
+  api_mirrors:              # API 镜像站列表，从上往下依次探测，遇到不可达自动切换下一个
+    # - https://bgmapi.anibt.net
+    - https://api.bgm.tv
+  image_mirrors:            # 图片 CDN 镜像站列表，规则同上
+    # - https://bgmimg.anibt.net
+    - https://lain.bgm.tv
 ```
+
+> 由于 [bgm.tv](https://bgm.tv) 在部分网络环境下不可达，可在 `api_mirrors` / `image_mirrors` 中按优先级填入镜像站地址。
+> 抓取数据 (`hexo bangumis -u`) 时会从上往下依次探测可达性，选用第一个能连通的镜像并在本次运行中复用；全部不可达时会报错提示。
+> 两个字段均可省略，省略时使用官方源 `https://api.bgm.tv` 与 `https://lain.bgm.tv`。
+>
+> **关于图片镜像**：插件不会直接使用 API 返回的完整图片 URL，而是从中提取相对路径（如 `aa/bb/12345.jpg`），再用镜像域名按 `<镜像>/pic/cover/<image_level>/<相对路径>` 重新拼接。因此 `image_mirrors` 中填入的站点必须沿用 [lain.bgm.tv](https://lain.bgm.tv) 的 URL 结构（即同样以 `/pic/cover/{等级}/{相对路径}` 提供封面），`bgmimg.anibt.net` 这类 lain 镜像即满足此要求；URL 结构不同的图床无法直接作为镜像使用。
 
 ## 使用
 
@@ -55,6 +67,27 @@ $ hexo bangumis -u
 ```
 $ hexo bangumis -d
 ```
+
+## 测试
+
+镜像 fallback 逻辑的测试位于 [`test/mirror.test.js`](test/mirror.test.js)，基于 Node.js 内置的 [`node:test`](https://nodejs.org/api/test.html)（无需额外依赖）。
+
+运行测试:
+```bash
+$ npm test
+```
+
+该命令会依次执行：`npm run build`（重新构建 `dist/`）→ `node --test`（运行测试）→ `ejslint`（检查模板语法）。
+
+测试覆盖以下场景:
+
+* 通过 anibt 镜像抓取真实用户的追番列表
+* 首个镜像不可达时，自动 fallback 到下一个镜像
+* 经图片镜像下载封面（同样验证图片镜像的 fallback）
+* 所有镜像均不可达时正确抛错
+* 镜像地址带尾部 `/` 时能正确归一化
+
+> ⚠️ 这些测试会**真实联网**访问镜像站（默认 `https://bgmapi.anibt.net` 与 `https://bgmimg.anibt.net`），因此需要网络环境可达对应镜像。若因断网或镜像下线导致失败，属环境问题而非代码缺陷。
 
 ## 获取 [bgm.tv](https://bgm.tv) 的 uid
 

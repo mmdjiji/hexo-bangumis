@@ -43,6 +43,9 @@ module.exports = async function (locals) {
     margin: config.bangumis.margin ?? '20px',
     download_image: config.bangumis.download_image ?? false,
     image_level: config.bangumis.image_level ?? 'c',
+    // when not localizing images, the page links straight to the image CDN;
+    // use the first configured image mirror, falling back to the official one
+    image_base: (config.bangumis.image_mirrors?.[0] || 'https://lain.bgm.tv').replace(/\/+$/, ''),
     wantWatch,
     watched,
     watching,

@@ -11,13 +11,13 @@ var path = require('path');
 var _require = require('./util'),
   i18n = _require.i18n;
 var fs = require('hexo-fs');
-var log = require('hexo-log').default({
+var log = require('hexo-log')["default"]({
   debug: false,
   silent: false
 });
 module.exports = /*#__PURE__*/function () {
   var _ref = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(locals) {
-    var _config$bangumis, _config$bangumis$lazy, _config$bangumis$marg, _config$bangumis$down, _config$bangumis$imag, _config$bangumis2;
+    var _config$bangumis, _config$bangumis$lazy, _config$bangumis$marg, _config$bangumis$down, _config$bangumis$imag, _config$bangumis$imag2, _config$bangumis2;
     var config, root, wantWatch, watching, watched, _JSON$parse, __, contents, customPath;
     return _regenerator["default"].wrap(function _callee$(_context) {
       while (1) switch (_context.prev = _context.next) {
@@ -59,6 +59,9 @@ module.exports = /*#__PURE__*/function () {
             margin: (_config$bangumis$marg = config.bangumis.margin) !== null && _config$bangumis$marg !== void 0 ? _config$bangumis$marg : '20px',
             download_image: (_config$bangumis$down = config.bangumis.download_image) !== null && _config$bangumis$down !== void 0 ? _config$bangumis$down : false,
             image_level: (_config$bangumis$imag = config.bangumis.image_level) !== null && _config$bangumis$imag !== void 0 ? _config$bangumis$imag : 'c',
+            // when not localizing images, the page links straight to the image CDN;
+            // use the first configured image mirror, falling back to the official one
+            image_base: (((_config$bangumis$imag2 = config.bangumis.image_mirrors) === null || _config$bangumis$imag2 === void 0 ? void 0 : _config$bangumis$imag2[0]) || 'https://lain.bgm.tv').replace(/\/+$/, ''),
             wantWatch: wantWatch,
             watched: watched,
             watching: watching,

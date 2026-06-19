@@ -3,7 +3,7 @@
         <% if(download_image) { %>
         <img src="<%= lazyload ? ("/images/bangumis/loading.gif") : `/images/bangumis/${item.image}` %>" data-src="<%= `/images/bangumis/${item.image}` %>" referrerPolicy="no-referrer" width="110" style="width:110px;margin:<%= margin %> auto;" />
         <% } else { %>
-        <img src="<%= lazyload ? ("/images/bangumis/loading.gif") : `https://lain.bgm.tv/pic/cover/${image_level}/${item.image}` %>" data-src="<%= `https://lain.bgm.tv/pic/cover/${image_level}/${item.image}` %>" referrerPolicy="no-referrer" width="110" style="width:110px;margin:<%= margin %> auto;" />
+        <img src="<%= lazyload ? ("/images/bangumis/loading.gif") : `${image_base}/pic/cover/${image_level}/${item.image}` %>" data-src="<%= `${image_base}/pic/cover/${image_level}/${item.image}` %>" referrerPolicy="no-referrer" width="110" style="width:110px;margin:<%= margin %> auto;" />
         <% } %>
     </div>
     <div class="bangumi-info">
